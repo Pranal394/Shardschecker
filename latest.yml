@@ -1,0 +1,8 @@
+version: 1.0.0
+files:
+  - url: ShardsConnect-Setup-1.0.0.exe
+    sha512: v7yVYHSoZ9DPgf8vdK6oflkxYrB+F3VQIUrzHpn8D0F84bYmf7wQ7FxFMchd8eE5VYw37sIt1/9qECd2uhq0fw==
+    size: 77530738
+path: ShardsConnect-Setup-1.0.0.exe
+sha512: v7yVYHSoZ9DPgf8vdK6oflkxYrB+F3VQIUrzHpn8D0F84bYmf7wQ7FxFMchd8eE5VYw37sIt1/9qECd2uhq0fw==
+releaseDate: '2025-12-27T21:37:59.688Z'
