@@ -8,7 +8,10 @@ const checkBtn = document.getElementById("checkBtn");
 const updateBtn = document.getElementById("updateBtn");
 const statusEl = document.getElementById("status");
 
-function setStatus(msg) { statusEl.textContent = `Status: ${msg}`; }
+function setStatus(msg) {
+  statusEl.textContent = `Status: ${msg}`;
+}
+
 function fillDropdown(reg) {
   gameSelect.innerHTML = "";
   Object.keys(reg).forEach(game => {
@@ -25,14 +28,14 @@ function fillDropdown(reg) {
   }
 }
 
-// Load registry on startup (auto-prune deleted locations)
+// Load registry on startup
 (async () => {
   const reg = await ipcRenderer.invoke("get-registered-games");
   fillDropdown(reg);
   setStatus("Loaded registrations");
 })();
 
-// Register a new game location (persisted)
+// Register a new game location
 addGameBtn.addEventListener("click", async () => {
   addGameStatusEl.textContent = "";
   const res = await ipcRenderer.invoke("register-game-location");
@@ -52,7 +55,7 @@ addGameBtn.addEventListener("click", async () => {
   }
 });
 
-// Remove registration (doesn’t delete files, just the record)
+// Remove registration
 removeGameBtn.addEventListener("click", async () => {
   const val = gameSelect.value;
   if (!val) return;
@@ -63,7 +66,7 @@ removeGameBtn.addEventListener("click", async () => {
   updateBtn.disabled = true;
 });
 
-// Check local vs remote version; unlock Update if remote > local
+// Check local vs remote version
 checkBtn.addEventListener("click", async () => {
   const val = gameSelect.value;
   if (!val) return;
@@ -79,7 +82,7 @@ checkBtn.addEventListener("click", async () => {
   updateBtn.disabled = !res.updateAvailable;
 });
 
-// Run update using remote ZIP; update local marker file
+// Run update
 updateBtn.addEventListener("click", async () => {
   const val = gameSelect.value;
   if (!val) return;
