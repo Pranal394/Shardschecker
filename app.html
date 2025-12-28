@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>ShardsConnect</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 24px; }
+    .row { margin-bottom: 12px; }
+    button { padding: 8px 14px; margin-right: 8px; }
+    #log { white-space: pre-wrap; background: #111; color: #0f0; padding: 12px; border-radius: 6px; min-height: 120px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    input[type=text] { width: 100%; padding: 8px; }
+  </style>
+</head>
+<body>
+  <h1>ShardsConnect</h1>
+
+  <div class="row">
+    <button id="fetchRegistry">Fetch game registry</button>
+    <span id="registryStatus"></span>
+  </div>
+
+  <div class="grid">
+    <div>
+      <h3>Register game</h3>
+      <div class="row">
+        <input id="gameName" type="text" placeholder="Game name" />
+      </div>
+      <div class="row">
+        <button id="pickDir">Pick game directory</button>
+        <span id="pickedDir"></span>
+      </div>
+      <div class="row">
+        <button id="registerGame">Register</button>
+        <span id="registerStatus"></span>
+      </div>
+    </div>
+
+    <div>
+      <h3>Update game</h3>
+      <div class="row">
+        <input id="updateGameName" type="text" placeholder="Game name (must be registered)" />
+      </div>
+      <div class="row">
+        <input id="updateZipUrl" type="text" placeholder="ZIP URL (GitHub release asset)" />
+      </div>
+      <div class="row">
+        <input id="updateVersion" type="text" placeholder="New version (e.g., 1.0.1)" />
+      </div>
+      <div class="row">
+        <button id="updateGame">Run update</button>
+        <span id="updateGameStatus"></span>
+      </div>
+    </div>
+  </div>
+
+  <h3>Logs</h3>
+  <div id="log"></div>
+
+  <script src="updater.js"></script>
+</body>
+</html>
