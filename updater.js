@@ -1,66 +1,90 @@
 const { ipcRenderer } = require("electron");
 
-const logEl = document.getElementById("log");
-function log(msg) { logEl.textContent += `${msg}\n`; }
+const addGameBtn = document.getElementById("addGameBtn");
+const addGameStatusEl = document.getElementById("addGameStatus");
+const gameSelect = document.getElementById("gameSelect");
+const removeGameBtn = document.getElementById("removeGameBtn");
+const checkBtn = document.getElementById("checkBtn");
+const updateBtn = document.getElementById("updateBtn");
+const statusEl = document.getElementById("status");
 
-const registryStatusEl = document.getElementById("registryStatus");
-const registerStatusEl = document.getElementById("registerStatus");
-const pickedDirEl = document.getElementById("pickedDir");
-const updateGameStatusEl = document.getElementById("updateGameStatus");
+function setStatus(msg) { statusEl.textContent = `Status: ${msg}`; }
+function fillDropdown(reg) {
+  gameSelect.innerHTML = "";
+  Object.keys(reg).forEach(game => {
+    const opt = document.createElement("option");
+    opt.value = game;
+    opt.textContent = `${game} — ${reg[game].dir}`;
+    gameSelect.appendChild(opt);
+  });
+  if (!Object.keys(reg).length) {
+    const opt = document.createElement("option");
+    opt.value = "";
+    opt.textContent = "(no games registered)";
+    gameSelect.appendChild(opt);
+  }
+}
 
-// Fetch remote game registry (example JSON in your repo)
-document.getElementById("fetchRegistry").addEventListener("click", async () => {
-  const registry = await ipcRenderer.invoke("fetch-remote-registry");
-  const count = Array.isArray(registry) ? registry.length : Object.keys(registry || {}).length;
-  registryStatusEl.textContent = `Loaded ${count} entries`;
-  log(`Registry loaded: ${count} entries`);
-});
+// Load registry on startup (auto-prune deleted locations)
+(async () => {
+  const reg = await ipcRenderer.invoke("get-registered-games");
+  fillDropdown(reg);
+  setStatus("Loaded registrations");
+})();
 
-// Pick directory
-document.getElementById("pickDir").addEventListener("click", async () => {
-  const dir = await ipcRenderer.invoke("select-directory");
-  if (dir) {
-    pickedDirEl.textContent = dir;
-    log(`Selected directory: ${dir}`);
+// Register a new game location (persisted)
+addGameBtn.addEventListener("click", async () => {
+  addGameStatusEl.textContent = "";
+  const res = await ipcRenderer.invoke("register-game-location");
+  if (res.status === "ok") {
+    addGameStatusEl.textContent = `Registered: ${res.game} at ${res.dir}`;
+    const reg = await ipcRenderer.invoke("get-registered-games");
+    fillDropdown(reg);
+    setStatus("Registration saved");
+  } else if (res.status === "exists") {
+    addGameStatusEl.textContent = `Already registered: ${res.game}`;
+    setStatus("Location already persisted");
+  } else if (res.status === "canceled") {
+    addGameStatusEl.textContent = "(canceled)";
   } else {
-    pickedDirEl.textContent = "(canceled)";
+    addGameStatusEl.textContent = `Error: ${res.message}`;
+    setStatus("Registration error");
   }
 });
 
-// Register game
-document.getElementById("registerGame").addEventListener("click", async () => {
-  const name = document.getElementById("gameName").value.trim();
-  const dir = pickedDirEl.textContent.trim();
-  if (!name || !dir) {
-    registerStatusEl.textContent = "Enter game name and pick a directory.";
-    return;
-  }
-  const res = await ipcRenderer.invoke("register-game", { name, dir });
-  registerStatusEl.textContent = res.message || res.status;
-  log(`Register: ${JSON.stringify(res)}`);
+// Remove registration (doesn’t delete files, just the record)
+removeGameBtn.addEventListener("click", async () => {
+  const val = gameSelect.value;
+  if (!val) return;
+  const res = await ipcRenderer.invoke("remove-registered-game", val);
+  const reg = await ipcRenderer.invoke("get-registered-games");
+  fillDropdown(reg);
+  setStatus(res.status === "ok" ? "Registration removed" : "Remove failed");
+  updateBtn.disabled = true;
 });
 
-// Update game
-document.getElementById("updateGame").addEventListener("click", async () => {
-  const game = document.getElementById("updateGameName").value.trim();
-  const link = document.getElementById("updateZipUrl").value.trim();
-  const version = document.getElementById("updateVersion").value.trim();
-  const dir = pickedDirEl.textContent.trim();
-
-  if (!game || !link || !version || !dir) {
-    updateGameStatusEl.textContent = "Fill all fields and ensure game is registered.";
+// Check local vs remote version; unlock Update if remote > local
+checkBtn.addEventListener("click", async () => {
+  const val = gameSelect.value;
+  if (!val) return;
+  const res = await ipcRenderer.invoke("check-game-status", val);
+  if (res.status === "missing") {
+    setStatus(`Folder missing for ${val}. Pruned registration.`);
+    const reg = await ipcRenderer.invoke("get-registered-games");
+    fillDropdown(reg);
+    updateBtn.disabled = true;
     return;
   }
+  setStatus(`Local ${res.local} vs Remote ${res.remote} — ${res.updateAvailable ? "update available" : "up to date"}`);
+  updateBtn.disabled = !res.updateAvailable;
+});
 
-  updateGameStatusEl.textContent = "Starting update...";
-  log(`Update requested: ${game} -> ${version}`);
-
-  try {
-    const res = await ipcRenderer.invoke("update-game", { game, dir, link, version });
-    updateGameStatusEl.textContent = res.status;
-    log(`Update result: ${JSON.stringify(res)}`);
-  } catch (err) {
-    updateGameStatusEl.textContent = `Error: ${err.message}`;
-    log(`Update error: ${err.message}`);
-  }
+// Run update using remote ZIP; update local marker file
+updateBtn.addEventListener("click", async () => {
+  const val = gameSelect.value;
+  if (!val) return;
+  updateBtn.disabled = true;
+  setStatus("Updating...");
+  const res = await ipcRenderer.invoke("update-registered-game", val);
+  setStatus(res.status || "Done");
 });
