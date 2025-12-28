@@ -1,0 +1,11 @@
+{
+  "appVersion": "1.0.0",
+  "files": {
+    "app.html": "https://raw.githubusercontent.com/Pranal394/Shardschecker/main/app.html",
+    "updater.js": "https://raw.githubusercontent.com/Pranal394/Shardschecker/main/updater.js"
+  },
+  "hashes": {
+    "app.html": "optional-sha256-of-app.html",
+    "updater.js": "optional-sha256-of-updater.js"
+  }
+}
