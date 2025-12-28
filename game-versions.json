@@ -1,0 +1,18 @@
+{
+  "Phasmophobia": {
+    "version": "0.9.0",
+    "zipUrl": "https://github.com/Pranal394/Shardschecker/releases/download/v0.9.0/Phasmophobia.zip"
+  },
+  "DeadByDaylight": {
+    "version": "7.1.2",
+    "zipUrl": "https://github.com/Pranal394/Shardschecker/releases/download/v7.1.2/DeadByDaylight.zip"
+  },
+  "TheForest": {
+    "version": "1.12",
+    "zipUrl": "https://github.com/Pranal394/Shardschecker/releases/download/v1.12/TheForest.zip"
+  },
+  "AmongUs": {
+    "version": "2025.12.28",
+    "zipUrl": "https://github.com/Pranal394/Shardschecker/releases/download/v2025.12.28/AmongUs.zip"
+  }
+}
